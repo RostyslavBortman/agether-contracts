@@ -52,9 +52,9 @@ describe("Agether4337Factory", function () {
     );
     await validationModule.waitForDeployment();
 
-    // Deploy hook multiplexer
+    // Deploy hook multiplexer (UUPS proxy)
     const HookFactory = await ethers.getContractFactory("AgetherHookMultiplexer");
-    hookMultiplexer = await HookFactory.deploy(admin.address);
+    hookMultiplexer = await upgrades.deployProxy(HookFactory, [admin.address], { kind: "uups" });
     await hookMultiplexer.waitForDeployment();
 
     // Deploy bootstrap (use fully qualified name to avoid ambiguity)

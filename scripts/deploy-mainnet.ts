@@ -151,13 +151,17 @@ async function main() {
   const validationModuleAddr = await validationModule.getAddress();
   console.log("   Agether8004ValidationModule (proxy):", validationModuleAddr);
 
-  // ── 3. AgetherHookMultiplexer (owned by timelock) ──
-  console.log("\n3. Deploying AgetherHookMultiplexer...");
+  // ── 3. AgetherHookMultiplexer (owned by timelock, UUPS proxy) ──
+  console.log("\n3. Deploying AgetherHookMultiplexer (UUPS proxy)...");
   const AgetherHookMultiplexer = await ethers.getContractFactory("AgetherHookMultiplexer");
-  const hookMultiplexer = await AgetherHookMultiplexer.deploy(timelockAddr);
+  const hookMultiplexer = await upgrades.deployProxy(
+    AgetherHookMultiplexer,
+    [timelockAddr],
+    { kind: "uups" }
+  );
   await hookMultiplexer.waitForDeployment();
   const hookMultiplexerAddr = await hookMultiplexer.getAddress();
-  console.log("   AgetherHookMultiplexer:", hookMultiplexerAddr);
+  console.log("   AgetherHookMultiplexer (proxy):", hookMultiplexerAddr);
 
   // ── 4. Agether7579Bootstrap ──
   console.log("\n4. Deploying Agether7579Bootstrap...");
@@ -230,15 +234,16 @@ async function main() {
   await (await agentReputation.grantRole(DEFAULT_ADMIN_ROLE, timelockAddr)).wait();
   await (await agentReputation.renounceRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
   console.log("   ✓ Agether8004Scorer: admin → TimelockController");
-  // Agether8004ValidationModule, Agether4337Factory: owned by timelock via proxy initialize()
-  // AgetherHookMultiplexer: owned by timelock from constructor
+  // Agether8004ValidationModule, Agether4337Factory, AgetherHookMultiplexer: owned by timelock via proxy initialize()
   console.log("   ✓ Agether8004ValidationModule: owner = TimelockController (proxy initialize)");
-  console.log("   ✓ AgetherHookMultiplexer: owner = TimelockController (constructor)");
+  console.log("   ✓ AgetherHookMultiplexer: owner = TimelockController (proxy initialize)");
   console.log("   ✓ Agether4337Factory: owner = TimelockController (proxy initialize)");
 
-  console.log("\n   ⚠️  TimelockController admin role still held by deployer.");
-  console.log("   ⚠️  Renounce after verifying everything works:");
-  console.log(`      timelock.renounceRole(DEFAULT_ADMIN_ROLE, "${deployer.address}")`);
+  // TimelockController: renounce deployer admin role
+  const timelockContract = await ethers.getContractAt("TimelockController", timelockAddr);
+  await (await timelockContract.renounceRole(DEFAULT_ADMIN_ROLE, deployer.address)).wait();
+  console.log("   ✓ TimelockController: deployer renounced DEFAULT_ADMIN_ROLE");
+  console.log("   🔒 Deployer no longer has admin bypass — all ops go through 7-day timelock");
 
   // ══════════════════════════════════════════════════════════════════════════
   //                          SAVE DEPLOYMENT
@@ -380,8 +385,8 @@ DEBUG=true
   // Agether8004ValidationModule — UUPS proxy (no constructor args)
   await verify(validationModuleAddr);
 
-  // AgetherHookMultiplexer — constructor arg
-  await verify(hookMultiplexerAddr, [timelockAddr]);
+  // AgetherHookMultiplexer — UUPS proxy (no constructor args)
+  await verify(hookMultiplexerAddr);
 
   // Agether7579Bootstrap — no constructor args
   await verify(bootstrapAddr);

@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 /**
@@ -26,7 +26,7 @@ describe("AgetherHookMultiplexer", function () {
     [admin, , randomUser] = await ethers.getSigners();
 
     const HookFactory = await ethers.getContractFactory("AgetherHookMultiplexer");
-    hookMultiplexer = await HookFactory.deploy(admin.address);
+    hookMultiplexer = await upgrades.deployProxy(HookFactory, [admin.address], { kind: "uups" });
     await hookMultiplexer.waitForDeployment();
 
     const MockFactory = await ethers.getContractFactory("MockModule");
@@ -219,6 +219,40 @@ describe("AgetherHookMultiplexer", function () {
       await hookMultiplexer.connect(admin).addHook(await mockHook1.getAddress());
       await hookMultiplexer.preCheck(randomUser.address, 1000n, "0xdeadbeef");
       expect(await mockHook1.preCheckCount()).to.equal(1);
+    });
+  });
+
+  // ═════════════════════════════════════════════════════════════════════
+  //                     UUPS UPGRADEABILITY
+  // ═════════════════════════════════════════════════════════════════════
+
+  describe("UUPS Upgradeability", function () {
+    it("owner can upgrade to new implementation", async function () {
+      const V2 = await ethers.getContractFactory("AgetherHookMultiplexer");
+      const upgraded = await upgrades.upgradeProxy(await hookMultiplexer.getAddress(), V2);
+      expect(await upgraded.getAddress()).to.equal(await hookMultiplexer.getAddress());
+    });
+
+    it("non-owner cannot upgrade", async function () {
+      const V2 = await ethers.getContractFactory("AgetherHookMultiplexer", randomUser);
+      await expect(
+        upgrades.upgradeProxy(await hookMultiplexer.getAddress(), V2)
+      ).to.be.revertedWithCustomError(hookMultiplexer, "OwnableUnauthorizedAccount");
+    });
+
+    it("state persists after upgrade", async function () {
+      // Add a sub-hook before upgrade
+      await hookMultiplexer.connect(admin).addHook(await mockHook1.getAddress());
+      expect(await hookMultiplexer.hookCount()).to.equal(1);
+
+      // Upgrade
+      const V2 = await ethers.getContractFactory("AgetherHookMultiplexer");
+      const upgraded = await upgrades.upgradeProxy(await hookMultiplexer.getAddress(), V2);
+
+      // State should persist
+      expect(await upgraded.hookCount()).to.equal(1);
+      expect(await upgraded.isSubHook(await mockHook1.getAddress())).to.be.true;
+      expect(await upgraded.owner()).to.equal(admin.address);
     });
   });
 });

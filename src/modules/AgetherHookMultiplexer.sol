@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.33;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "../interfaces/IERC7579Module.sol";
 import {IErrors as IA} from "../interfaces/IErrors.sol";
 import {IEvents as IE} from "../interfaces/IEvents.sol";
@@ -34,7 +36,7 @@ import {Constants as C} from "../libraries/Constants.sol";
  *        msgSender parameter or use a transient storage pattern.
  *      - postCheck: multiplexer decodes stored hookData and calls each sub-hook
  */
-contract AgetherHookMultiplexer is IHook, Ownable {
+contract AgetherHookMultiplexer is IHook, Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     // ═══════════════════════════════════════════════════════════════════════
     //                              STORAGE
@@ -47,14 +49,45 @@ contract AgetherHookMultiplexer is IHook, Ownable {
     mapping(address => bool) private _isHook;
 
     // ═══════════════════════════════════════════════════════════════════════
+    //                           STORAGE GAP
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// @dev Reserved storage for future upgrades (50 − 2 used = 48 slots)
+    uint256[48] private __gap;
+
+    // ═══════════════════════════════════════════════════════════════════════
     //                            CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════════════════
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //                            INITIALIZER
+    // ═══════════════════════════════════════════════════════════════════════
+
     /**
-     * @notice Deploy the AgetherHookMultiplexer
+     * @notice Initialize the hook multiplexer (replaces constructor for proxy)
      * @param owner_ Owner who manages sub-hooks (should be TimelockController)
      */
-    constructor(address owner_) Ownable(owner_) {}
+    function initialize(address owner_) external initializer {
+        __Ownable_init(owner_);
+        __UUPSUpgradeable_init();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //                         UUPS AUTHORIZATION
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * @dev Only the owner (TimelockController) can authorize upgrades.
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+        if (newImplementation == address(0)) revert IA.ZeroAddress();
+        if (newImplementation.code.length == 0) revert IA.ZeroAddress();
+    }
 
     // ═══════════════════════════════════════════════════════════════════════
     //                          ADMIN FUNCTIONS

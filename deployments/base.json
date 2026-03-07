@@ -2,8 +2,8 @@
   "network": "base",
   "chainId": 8453,
   "version": "v2-safe7579",
-  "blockNumber": 43025257,
-  "timestamp": "2026-03-06T23:31:02.468Z",
+  "blockNumber": 43059570,
+  "timestamp": "2026-03-07T18:34:49.182Z",
   "deployer": "0x930C6f124Da898f1106C82C05786e517bb049B54",
   "contracts": {
     "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -13,13 +13,13 @@
     "safeProxyFactory": "0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67",
     "safe7579": "0x7579EE8307284F293B1927136486880611F20002",
     "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
-    "timelockController": "0xCCF420C05a062aF4A339E145d8ec28F11910979A",
+    "timelockController": "0xB3FD04f0B7c9DeC7f7B52d5c2CdfdCB3Fc9eE111",
     "timelockMinDelay": 604800,
-    "agether4337Factory": "0xA3E87aeE80ecA74327537B2580Def010e6B45D40",
-    "agether7579Bootstrap": "0x5b6e9aB5e919c09009240f091D47F2EDa303e418",
-    "agether8004ValidationModule": "0xEA9266358D7e61d6E4a56a3645589395692C4635",
-    "agetherHookMultiplexer": "0x27aBC05aE58D8aA89387e8E4403bbb0ac4ff17F9",
-    "agether8004Scorer": "0x5C223b4E9cFba67b57725a016Be0a7949747FC80"
+    "agether4337Factory": "0x73f4153bf1d46dB203Db27fc8FC942f6279D8d38",
+    "agether7579Bootstrap": "0xbD0BDFE70fDB88fc03F2Ea22B81A2dfc99298E42",
+    "agether8004ValidationModule": "0x85C8C97cE5AE540a4408D6A77a6D3aFcA9BCdB71",
+    "agetherHookMultiplexer": "0x688cab46ce5A7450D706e9E3C8e0F31BaEa6c8BE",
+    "agether8004Scorer": "0x33eB904fe9975e2D8c577aD7e5B14CefBD4A65E1"
   },
   "v1": {
     "accountFactory": "0x89a8758E60A56EcB47247D92E05447eFd450d6Bf",
