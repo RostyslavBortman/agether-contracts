@@ -1,0 +1,29 @@
+{
+  "network": "mainnet",
+  "chainId": 1,
+  "version": "v2-safe7579",
+  "blockNumber": 24601782,
+  "timestamp": "2026-03-06T23:45:14.425Z",
+  "deployer": "0x930C6f124Da898f1106C82C05786e517bb049B54",
+  "contracts": {
+    "usdc": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "erc8004IdentityRegistry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+    "morphoBlue": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+    "safeSingleton": "0x41675C099F32341bf84BFc5382aF534df5C7461a",
+    "safeProxyFactory": "0x4e1DCf7AD4e460CfD30791CCC4F9c8a4f820ec67",
+    "safe7579": "0x7579EE8307284F293B1927136486880611F20002",
+    "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+    "timelockController": "0x110B8265b4Bf5Cf84285814451923936Cb2d088C",
+    "timelockMinDelay": 604800,
+    "agether4337Factory": "0xf186f0A057804E92c05f77930682ffC69eCa9CD8",
+    "agether7579Bootstrap": "0xc0E849B282f0801D8EB8D4ffd18d90Bd8b79c10e",
+    "agether8004ValidationModule": "0xB24e4DFAdF6D92218d4F5da6e79D362832cAE415",
+    "agetherHookMultiplexer": "0xe3f40ECAB61B0A07B7583c76eEF39F388E1E2Ec4",
+    "agether8004Scorer": "0xBc2b8E3965DE24b328327EE117FF0c10d56b5E94"
+  },
+  "collateralTokens": {
+    "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "wsteth": "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0",
+    "cbeth": "0xBe9895146f7AF43049ca1c1AE358B0541Ea49704"
+  }
+}
