@@ -1,12 +1,12 @@
 # Agether — Smart Contracts
 
-> Safe-based smart wallets and credit scoring for autonomous AI agents on Base.
+> Safe-based smart wallets and credit scoring for autonomous AI agents on Ethereum & Base.
 
 ## 📋 Overview
 
 AI agents need wallets to operate — pay for API calls, buy compute, interact with services via [x402](https://www.x402.org/). But agents can't get traditional accounts. No bank, no credit history, no identity. **Agether** fixes this.
 
-Every agent gets an **ERC-8004 identity** (NFT), a **Safe smart account** (ERC-4337 + ERC-7579), and an **on-chain credit score** attested by an off-chain ML oracle:
+Every agent gets an **ERC-8004 identity** (NFT), a **Safe smart account** (ERC-4337 + ERC-7579), and an **onchain credit score** attested by an offchain ML oracle:
 
 | Component | What It Does |
 |---|---|
@@ -22,12 +22,12 @@ Every agent gets an **ERC-8004 identity** (NFT), a **Safe smart account** (ERC-4
 
 [OpenClaw](https://openclaw.ai) is an open-source personal AI assistant. OpenClaw agents can extend themselves with **skills** — plugins that give them new capabilities.
 
-Agether is the on-chain identity and wallet layer for these agents:
+Agether is the onchain identity and wallet layer for these agents:
 
 1. **Get an identity** — register an [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) agent NFT
 2. **Get a wallet** — `Agether4337Factory.createAccount(agentId)` deploys a Safe with ERC-7579 modules
 3. **Pass KYA** — submit code for audit via ValidationRegistry, get approved
-4. **Get scored** — off-chain ML model computes credit score, signs attestation, agent submits on-chain
+4. **Get scored** — offchain ML model computes credit score, signs attestation, agent submits onchain
 5. **Transact** — all execution goes through ERC-4337 EntryPoint → Safe7579 → our validator
 
 ### Interaction Flow
@@ -56,7 +56,7 @@ Agether is the on-chain identity and wallet layer for these agents:
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        AGENT OWNER (EOA)                            │
-│                    holds ERC-8004 NFT on Base                       │
+│               holds ERC-8004 NFT on Ethereum or Base                │
 └────────────────────────────┬────────────────────────────────────────┘
                              │ owns NFT
                              ▼
@@ -160,11 +160,11 @@ Admin-managed ERC-7579 hook chain. Singleton for all accounts. Iterates through 
 - Owner: TimelockController
 
 ### Agether8004Scorer.sol
-Oracle-based credit score store with ERC-8004 Reputation Registry bridge. All scoring happens off-chain via ML model.
+Oracle-based credit score store with ERC-8004 Reputation Registry bridge. All scoring happens offchain via ML model.
 
 **Flow:**
 1. Agent pays via x402 to request a credit score from the backend
-2. Backend ML model computes score off-chain
+2. Backend ML model computes score offchain
 3. Backend signs `(agentId, score, timestamp, chainId, contractAddress)`
 4. Agent (or relayer) calls `submitScore()` with the signed attestation
 5. Contract verifies signature, stores score, pushes feedback to ERC-8004
@@ -249,14 +249,39 @@ npx hardhat test test/ValidationRegistry.test.ts
 | `AgetherHookMultiplexer.test.ts` | 18 | Module lifecycle, sub-hook CRUD, limits, hook execution (preCheck/postCheck) |
 | `ValidationRegistry.test.ts` | 57 | Request/response flow, credit helpers, query functions, admin, pause, UUPS |
 
-### Deploy (Base)
+### Deploy
 
 ```bash
 # Deploy to Base mainnet
 npx hardhat run scripts/deploy-base.ts --network base
+
+# Deploy to Ethereum mainnet
+npx hardhat run scripts/deploy-base.ts --network mainnet
 ```
 
-### External Contracts (pre-deployed on Base)
+### Agether Contracts — Base (Chain ID 8453)
+
+| Contract | Address |
+|---|---|
+| Agether4337Factory | `0x73f4153bf1d46dB203Db27fc8FC942f6279D8d38` |
+| Agether7579Bootstrap | `0xbD0BDFE70fDB88fc03F2Ea22B81A2dfc99298E42` |
+| Agether8004ValidationModule | `0x85C8C97cE5AE540a4408D6A77a6D3aFcA9BCdB71` |
+| AgetherHookMultiplexer | `0x688cab46ce5A7450D706e9E3C8e0F31BaEa6c8BE` |
+| Agether8004Scorer | `0x33eB904fe9975e2D8c577aD7e5B14CefBD4A65E1` |
+| TimelockController | `0xB3FD04f0B7c9DeC7f7B52d5c2CdfdCB3Fc9eE111` |
+
+### Agether Contracts — Ethereum (Chain ID 1)
+
+| Contract | Address |
+|---|---|
+| Agether4337Factory | `0xb6363c2B5C72C14D3fC4261e3dd836D8966bE072` |
+| Agether7579Bootstrap | `0x055C2e70dd011C4ADEEfB795Ab77D74437be6D33` |
+| Agether8004ValidationModule | `0xE282fB8615abb8bA53F07b8BAB2937C78fE3867D` |
+| AgetherHookMultiplexer | `0xeD62ac874F58CEc9F065aB8e6872752Eb0F6eA14` |
+| Agether8004Scorer | `0x960853769d52B14aA0daeab7E1E59f5c9299cb65` |
+| TimelockController | `0x78e0227f9DE577e583B8149C73F0bA1E7200AD01` |
+
+### Shared Infrastructure (same addresses on both chains)
 
 | Contract | Address |
 |---|---|
@@ -343,7 +368,7 @@ All admin functions are behind a **TimelockController** with a 7-day delay.
 - OpenZeppelin Contracts Upgradeable 5.x
 - Hardhat + TypeScript + ethers v6
 - UUPS Proxy Pattern (Agether8004Scorer, ValidationRegistry)
-- Base (chainId 8453)
+- Ethereum (chainId 1) & Base (chainId 8453)
 
 ---
 
