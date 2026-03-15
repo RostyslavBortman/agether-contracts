@@ -2,6 +2,8 @@
 
 > Safe-based smart wallets and credit scoring for autonomous AI agents on Ethereum & Base.
 
+🐦 [Twitter](https://x.com/agetherai) · 📦 [GitHub](https://github.com/IdeaSoft-RD/agether-contracts)
+
 ## 📋 Overview
 
 AI agents need wallets to operate — pay for API calls, buy compute, interact with services via [x402](https://www.x402.org/). But agents can't get traditional accounts. No bank, no credit history, no identity. **Agether** fixes this.
@@ -371,6 +373,11 @@ All admin functions are behind a **TimelockController** with a 7-day delay.
 - Ethereum (chainId 1) & Base (chainId 8453)
 
 ---
+
+## 🔗 Links
+
+- **Twitter:** [@agetherai](https://x.com/agetherai)
+- **Contracts:** [github.com/IdeaSoft-RD/agether-contracts](https://github.com/IdeaSoft-RD/agether-contracts)
 
 ## 📄 License
 
